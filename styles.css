@@ -144,17 +144,38 @@ input:hover {
 }
 
 .game-board-button {
-    height: 10.8vh;
-    width: 10.8vh;
+    height: 10.6vh;
+    width: 10.6vh;
     border-radius: 50%;
 }
 
 .player1 {
     background-color: var(--color-jugador-uno);
+    animation-name: fall;
+    animation-duration: 0.8s;
+    animation-timing-function: linear;
 }
 
 .player2 {
     background-color: var(--color-jugador-dos);
+    animation-name: fall;
+    animation-duration: 1s;
+    animation-timing-function: linear;
+}
+
+@keyframes fall {
+    0% {
+        transform: translateY(-600px);
+    }
+    50% {
+        transform: translateY(0px);
+    }
+    80% {
+        transform: translateY(-15px);
+    }
+    100% {
+        transform: translateY(0px);
+    }
 }
 
 
