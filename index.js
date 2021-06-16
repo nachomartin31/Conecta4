@@ -48,13 +48,16 @@ function createBoard() { //Create the game board elements
 }
 
 function addEvents(e) { //Add eventListeners to the board positions
-    let target = e.target.id;
-    let targetArray = Array.from(target);
-    let column = targetArray[targetArray.length - 1];
+    if (e) {
+        let target = e.target.id;
+        let targetArray = Array.from(target);
+        let column = targetArray[targetArray.length - 1];
 
-    if (winner === '') {
-        placeChip(column)
+        if (winner === '') {
+            placeChip(column)
+        }
     }
+
 }
 
 function placePositions() { // Get the positions ordered in the array 'positions'
@@ -80,7 +83,7 @@ function placeChip(column) { //Place chip on proper position when a column is cl
 
     }
     if (index < 6) {
-        if (round % 2 === 0) {
+        if (round % 2 !== 0) {
             positions[column][index].classList.add('player1');
             positions[column][index] = 'p1';
         } else {
@@ -112,7 +115,7 @@ function checkResults(row, column) {
         }
 
     }
-
+    counter = 1;
     for (let i = 0; i < 5; i++) { //Check for vertical win
         if ((positions[column][i] === 'p1' && positions[column][i + 1] === 'p1') || (positions[column][i] === 'p2' && positions[column][i + 1] === 'p2')) {
             counter++;
@@ -124,7 +127,7 @@ function checkResults(row, column) {
         }
 
     }
-
+    counter = 1;
     if (row >= column) { //Check for diagonal win (bottom-left to top-right)
         for (let i = 0; i + (row - column) < 5; i++) { //Check for diagonal win (from bottom/left to top/right)
             if ((positions[i][i + (row - column)] === 'p1' && positions[i + 1][i + (row - column) + 1] === 'p1') || (positions[i][i + (row - column)] === 'p2' && positions[i + 1][i + (row - column) + 1] === 'p2')) {
@@ -149,6 +152,7 @@ function checkResults(row, column) {
             }
         }
     }
+    counter = 1;
     if ((6 - column) <= row) { //Check for diagonal win (from bottom-right to top-left)
         for (let i = 0;
             (i + row - (6 - column)) < 5; i++) {
@@ -179,9 +183,9 @@ function checkResults(row, column) {
 
 function gameOver() {
     if (round % 2 !== 0) {
-        winner = 'Las rojas';
-    } else {
         winner = 'Las azules';
+    } else {
+        winner = 'Las rojas';
     }
 
     const game = document.querySelector('.game');
@@ -190,12 +194,13 @@ function gameOver() {
     setTimeout(() => {
         game.classList.remove('currentSection');
         postGame.classList.add('currentSection');
-    }, 1500);
+    }, 2500);
 
     const anouncement = document.querySelector('.winner');
-
     anouncement.textContent = `¡${winner} ganan la partida!`;
+
 }
+
 
 function resetBoard() {
     poitions = [
