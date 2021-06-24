@@ -99,7 +99,7 @@ input:hover {
     position: absolute;
     max-height: 50rem;
     max-width: 50rem;
-    transform: translate(55%);
+    transform: translate(71%);
     margin: 0;
     display: grid;
     grid-template-columns: repeat(7, 5rem);
@@ -114,7 +114,7 @@ input:hover {
     position: absolute;
     max-height: 50rem;
     max-width: 50rem;
-    transform: translate(55%);
+    transform: translate(71%);
     margin: 0;
     display: grid;
     grid-template-columns: repeat(7, 5rem);
@@ -144,8 +144,8 @@ input:hover {
 }
 
 .game-board-button {
-    height: 10.6vh;
-    width: 10.6vh;
+    height: 11vh;
+    width: 11vh;
     border-radius: 50%;
 }
 

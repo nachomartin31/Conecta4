@@ -10,21 +10,22 @@ let positions = [ //This array will contain the ordered positions of the board
 ];
 let round = 1; //Rounds counter
 let winner = '';
+let players = 0;
 //preGame section: 
+const multiPlayerButton = document.querySelector('#multiPlayer');
+multiPlayerButton.addEventListener('click', multiPlayer);
 
-function startGame() { //Starts the game
-    const preGame = document.querySelector('.preGame'); //Change section displayed
+const singlePlayerButton = document.querySelector('#singlePlayer');
+singlePlayerButton.addEventListener('click', singlePlayer);
+//game section:
+function gameScreen() { //Change section displayed
+    const preGame = document.querySelector('.preGame');
     const game = document.querySelector('.game');
 
     preGame.classList.remove('currentSection');
     game.classList.add('currentSection');
-
-    createBoard(); //Call game functions
-    placePositions();
-    addEvents();
 }
 
-//game section:
 function createBoard() { //Create the game board elements 
     const board = document.querySelector('.game-board')
     const boardBackplate = document.querySelector('.game-board-backplate')
@@ -54,7 +55,13 @@ function addEvents(e) { //Add eventListeners to the board positions
         let column = targetArray[targetArray.length - 1];
 
         if (winner === '') {
-            placeChip(column)
+            placeChip(column);
+            if (players === 1) {
+                setTimeout(() => {
+                    machineRound();
+                }, 500);
+
+            }
         }
     }
 
@@ -70,8 +77,6 @@ function placePositions() { // Get the positions ordered in the array 'positions
         }
     }
 }
-
-
 
 function placeChip(column) { //Place chip on proper position when a column is clicked
     let index = 0;
@@ -97,15 +102,19 @@ function placeChip(column) { //Place chip on proper position when a column is cl
         round++;
     }
 
-
-
 }
 
 function checkResults(row, column) {
     let counter = 1;
+    let currentPlayer = '';
+    if (round % 2 !== 0) {
+        currentPlayer = 'p1';
+    } else {
+        currentPlayer = 'p2';
+    }
 
     for (let i = 0; i < 6; i++) { //Check for horizontal win
-        if ((positions[i][row] === 'p1' && positions[i + 1][row] === 'p1') || (positions[i][row] === 'p2' && positions[i + 1][row] === 'p2')) {
+        if (positions[i][row] === currentPlayer && positions[i + 1][row] === currentPlayer) {
             counter++;
         } else {
             counter = 1;
@@ -117,7 +126,7 @@ function checkResults(row, column) {
     }
     counter = 1;
     for (let i = 0; i < 5; i++) { //Check for vertical win
-        if ((positions[column][i] === 'p1' && positions[column][i + 1] === 'p1') || (positions[column][i] === 'p2' && positions[column][i + 1] === 'p2')) {
+        if (positions[column][i] === currentPlayer && positions[column][i + 1] === currentPlayer) {
             counter++;
         } else {
             counter = 1;
@@ -130,7 +139,7 @@ function checkResults(row, column) {
     counter = 1;
     if (row >= column) { //Check for diagonal win (bottom-left to top-right)
         for (let i = 0; i + (row - column) < 5; i++) { //Check for diagonal win (from bottom/left to top/right)
-            if ((positions[i][i + (row - column)] === 'p1' && positions[i + 1][i + (row - column) + 1] === 'p1') || (positions[i][i + (row - column)] === 'p2' && positions[i + 1][i + (row - column) + 1] === 'p2')) {
+            if (positions[i][i + (row - column)] === currentPlayer && positions[i + 1][i + (row - column) + 1] === currentPlayer) {
                 counter++;
             } else {
                 counter = 1;
@@ -139,10 +148,40 @@ function checkResults(row, column) {
                 gameOver();
             }
         }
+        counter = 1;
 
     } else {
         for (let i = 0; i + (column - row) < 6; i++) {
-            if ((positions[i + (column - row)][i] === 'p1' && positions[i + (column - row) + 1][i + 1] === 'p1') || (positions[i + (column - row)][i] === 'p2' && positions[i + (column - row) + 1][i + 1] === 'p2')) {
+            if (positions[i + (column - row)][i] === currentPlayer && positions[i + (column - row) + 1][i + 1] === currentPlayer) {
+                counter++;
+            } else {
+                counter = 1;
+            }
+            if (counter === 4) {
+                gameOver();
+            }
+        }
+        counter = 1;
+
+    }
+    if ((6 - column) <= row) { //Check for diagonal win (from bottom-right to top-left)
+        for (let i = 0;
+            (i + row - (6 - column)) < 5; i++) {
+            if (positions[6 - i][row - (6 - column) + i] === currentPlayer && positions[6 - i - 1][row - (6 - column) + i + 1] === currentPlayer) {
+                counter++;
+            } else {
+                counter = 1;
+            }
+            if (counter === 4) {
+                gameOver();
+            }
+        }
+        counter = 1;
+
+    } else {
+        for (let i = 0;
+            (row + column) - i > 0; i++) {
+            if (positions[(row + column) - i][i] === currentPlayer && positions[(row + column) - i - 1][i + 1] === currentPlayer) {
                 counter++;
             } else {
                 counter = 1;
@@ -152,31 +191,77 @@ function checkResults(row, column) {
             }
         }
     }
-    counter = 1;
-    if ((6 - column) <= row) { //Check for diagonal win (from bottom-right to top-left)
-        for (let i = 0;
-            (i + row - (6 - column)) < 5; i++) {
-            if ((positions[6 - i][row - (6 - column) + i] === 'p1' && positions[6 - i - 1][row - (6 - column) + i + 1] === 'p1') || (positions[6 - i][row - (6 - column) + i] === 'p2' && positions[6 - i - 1][row - (6 - column) + i + 1] === 'p2')) {
-                counter++;
+}
+
+function launch() {
+    gameScreen();
+    createBoard();
+    placePositions();
+    addEvents();
+}
+//Multiplayer:
+function multiPlayer() { //Starts the game
+    players = 2;
+    launch()
+}
+
+//single player:
+function singlePlayer() {
+    players = 1;
+    launch()
+}
+
+function machineRound() {
+    if (round % 2 === 0 && winner === '') {
+        placeChip(selectColumn());
+    }
+}
+
+function selectColumn() {
+    const places = positions.map(function(column) {
+        return column.map(function(row) {
+            if (row === 'p1') {
+                return 'player'
+            } else if (row === 'p2') {
+                return 'CPU'
             } else {
-                counter = 1;
+                return 'empty'
             }
-            if (counter === 4) {
-                gameOver();
+        })
+    })
+    let counter = 1;
+    for (let j = 0; j < 5; j++) {
+        for (let i = 0; i < 6; i++) {
+            if (places[i][j] === 'player' && places[i + 1][j] === 'player') {
+                counter++;
+            }
+            if (counter === 2) {
+                if (i < 4) {
+                    if (places[i + 2][j] === "empty") {
+                        return i + 2;
+                    } else {
+                        if (places[i - 2][j] === 'empty') {
+                            return i - 2;
+                        }
+                    }
+
+                }
+
             }
         }
+
+
+
+        return (randomize());
+    }
+}
+
+function randomize() {
+    let randomColumn = Math.round(Math.random() * 6)
+    if (positions[randomColumn][5] !== 'p1' && positions[randomColumn][5] !== 'p2') {
+        return randomColumn;
     } else {
-        for (let i = 0;
-            (row + column) - i > 0; i++) {
-            if ((positions[(row + column) - i][i] === 'p1' && positions[(row + column) - i - 1][i + 1] === 'p1') || (positions[(row + column) - i][i] === 'p2' && positions[(row + column) - i - 1][i + 1] === 'p2')) {
-                counter++;
-            } else {
-                counter = 1;
-            }
-            if (counter === 4) {
-                gameOver();
-            }
-        }
+        randomize();
     }
 }
 //postGame section:
@@ -229,7 +314,12 @@ function resetBoard() {
 
 function newGame() {
     resetBoard();
-    startGame();
+    if (players === 2) {
+        multiPlayer();
+    } else {
+        singlePlayer();
+    }
+
 }
 
 function mainMenu() {
