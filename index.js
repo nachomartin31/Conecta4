@@ -104,7 +104,7 @@ function placeChip(column) { //Place chip on proper position when a column is cl
 
 }
 
-function checkResults(row, column) {
+function checkResults(row, column) { //Check for a win situation
     let counter = 1;
     let currentPlayer = '';
     if (round % 2 !== 0) {
@@ -190,6 +190,7 @@ function checkResults(row, column) {
                 gameOver();
             }
         }
+        counter = 1;
     }
 }
 
@@ -200,24 +201,25 @@ function launch() {
     addEvents();
 }
 //Multiplayer:
-function multiPlayer() { //Starts the game
+function multiPlayer() { //Starts the multiplayer game
     players = 2;
     launch()
 }
 
 //single player:
-function singlePlayer() {
+function singlePlayer() { //Starts the single player game 
     players = 1;
     launch()
 }
 
-function machineRound() {
+function machineRound() { //The machine makes its move
     if (round % 2 === 0 && winner === '') {
         placeChip(selectColumn());
     }
 }
 
-function selectColumn() {
+function selectColumn() { //Select the best movement possible
+
     const places = positions.map(function(column) {
         return column.map(function(row) {
             if (row === 'p1') {
@@ -230,30 +232,132 @@ function selectColumn() {
         })
     })
     let counter = 1;
+    //Machine's overall game state:
+    //Machine's vertical winning option:
+    for (let i = 0; i <= 6; i++) {
+        for (let j = 0; j < 5; j++) {
+            if (places[i][j] === 'CPU' && places[i][j + 1]) {
+                counter++;
+            } else {
+                counter = 1;
+            }
+            if (counter === 3) {
+                if (j + 2 < 6 && places[i][j + 2] === 'empty') {
+                    return i;
+                }
+            }
+        }
+    }
+    counter = 1;
+    //Machine's horizontal winning option:
+    for (let j = 0; j <= 5; j++) {
+        for (let i = 0; i < 6; i++) {
+            if (places[i][j] === 'CPU' && places[i + 1][j] === 'CPU') {
+                counter++;
+            } else {
+                counter = 1;
+            }
+            if (counter === 3) {
+                if (j === 0) {
+                    if (i < 5) {
+                        if (places[i + 2][j] === 'empty') {
+                            return i + 2;
+                        }
+                    }
+                    if (i > 1) {
+                        if (places[i - 2][j] === 'empty') {
+                            return i - 2;
+                        }
+                    }
+                } else {
+                    if (i < 5) {
+                        if (places[i + 2][j] === 'empty' && places[i + 2][j - 1] !== 'empty') {
+                            return i + 2;
+                        }
+                    }
+                    if (i > 1) {
+                        if (places[i - 2][j] === 'empty' && places[i - 2][j - 1] !== 'empty') {
+                            return i - 2;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    counter = 1;
+    //Player's overall game state:
+    //Vertical verifications:
+    for (let i = 0; i <= 6; i++) {
+        for (let j = 0; j < 5; j++) {
+            if (places[i][j] === 'player' && places[i][j + 1] === 'player') {
+                counter++;
+            } else {
+                counter = 1;
+            }
+            if ((counter === 3 && j < 5) && places[i][j + 2] === 'empty') {
+                return i;
+            }
+        }
+    }
+    //Horizontal verifications:
     for (let j = 0; j < 5; j++) {
         for (let i = 0; i < 6; i++) {
             if (places[i][j] === 'player' && places[i + 1][j] === 'player') {
                 counter++;
             }
             if (counter === 2) {
-                if (i < 4) {
+                if (i <= 3) {
                     if (places[i + 2][j] === "empty") {
                         return i + 2;
-                    } else {
-                        if (places[i - 2][j] === 'empty') {
+                    } else { counter = 1; }
+                } else {
+                    if (places[i - 2][j] === 'empty') {
+                        return i - 2;
+                    } else { counter = 1; }
+                }
+            }
+        }
+        counter = 1;
+    }
+
+    for (let j = 0; j < 5; j++) {
+        for (let i = 0; i < 6; i++) {
+            if (places[i][j] === 'player' && places[i + 1][j] === 'player') {
+                counter++;
+            }
+            if (counter === 3) {
+                if (i > 1 && i < 5) {
+                    if (j === 0) {
+                        if (places[i + 2][j] === "empty") {
+                            return i + 2;
+                        } else {
+                            counter = 1;
+                        }
+                        if (places[i - 2][j] === "empty") {
                             return i - 2;
+                        } else {
+                            counter = 1;
+                        }
+                    } else {
+                        if (places[i + 2][j] === "empty" && places[i + 2][j - 1] !== "empty") {
+                            return i + 2;
+                        } else {
+                            counter = 1;
+                        }
+                        if (places[i - 2][j] === "empty" && places[i - 2][j - 1] !== "empty") {
+                            return i - 2;
+                        } else {
+                            counter = 1;
                         }
                     }
 
                 }
-
             }
         }
-
-
-
-        return (randomize());
+        counter = 1;
     }
+
+    return (randomize());
 }
 
 function randomize() {
