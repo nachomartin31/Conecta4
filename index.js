@@ -236,7 +236,7 @@ function selectColumn() { //Select the best movement possible
     //Machine's vertical winning option:
     for (let i = 0; i <= 6; i++) {
         for (let j = 0; j < 5; j++) {
-            if (places[i][j] === 'CPU' && places[i][j + 1]) {
+            if (places[i][j] === 'CPU' && places[i][j + 1] === 'CPU') {
                 counter++;
             } else {
                 counter = 1;
@@ -247,8 +247,26 @@ function selectColumn() { //Select the best movement possible
                 }
             }
         }
+        counter = 1;
     }
-    counter = 1;
+
+    for (let i = 0; i <= 6; i++) {
+        for (let j = 0; j < 5; j++) {
+            if (places[i][j] === 'player' && places[i][j + 1] === 'player') {
+                counter++;
+            } else {
+                counter = 1;
+            }
+            if (counter === 3) {
+                if (j < 4) {
+                    if (places[i][j + 2] === 'empty') {
+                        return i;
+                    }
+                }
+            }
+        }
+        counter = 1;
+    }
     //Machine's horizontal winning option:
     for (let j = 0; j <= 5; j++) {
         for (let i = 0; i < 6; i++) {
@@ -264,7 +282,7 @@ function selectColumn() { //Select the best movement possible
                             return i + 2;
                         }
                     }
-                    if (i > 1) {
+                    if (i > 2) {
                         if (places[i - 2][j] === 'empty') {
                             return i - 2;
                         }
@@ -275,7 +293,7 @@ function selectColumn() { //Select the best movement possible
                             return i + 2;
                         }
                     }
-                    if (i > 1) {
+                    if (i > 2) {
                         if (places[i - 2][j] === 'empty' && places[i - 2][j - 1] !== 'empty') {
                             return i - 2;
                         }
@@ -283,47 +301,19 @@ function selectColumn() { //Select the best movement possible
                 }
             }
         }
+        counter = 1;
     }
-    counter = 1;
+
     //Player's overall game state:
     //Vertical verifications:
-    for (let i = 0; i <= 6; i++) {
-        for (let j = 0; j < 5; j++) {
-            if (places[i][j] === 'player' && places[i][j + 1] === 'player') {
-                counter++;
-            } else {
-                counter = 1;
-            }
-            if ((counter === 3 && j < 5) && places[i][j + 2] === 'empty') {
-                return i;
-            }
-        }
-    }
+
     //Horizontal verifications:
     for (let j = 0; j < 5; j++) {
         for (let i = 0; i < 6; i++) {
             if (places[i][j] === 'player' && places[i + 1][j] === 'player') {
                 counter++;
-            }
-            if (counter === 2) {
-                if (i <= 3) {
-                    if (places[i + 2][j] === "empty") {
-                        return i + 2;
-                    } else { counter = 1; }
-                } else {
-                    if (places[i - 2][j] === 'empty') {
-                        return i - 2;
-                    } else { counter = 1; }
-                }
-            }
-        }
-        counter = 1;
-    }
-
-    for (let j = 0; j < 5; j++) {
-        for (let i = 0; i < 6; i++) {
-            if (places[i][j] === 'player' && places[i + 1][j] === 'player') {
-                counter++;
+            } else {
+                counter = 1
             }
             if (counter === 3) {
                 if (i > 1 && i < 5) {
@@ -356,6 +346,39 @@ function selectColumn() { //Select the best movement possible
         }
         counter = 1;
     }
+    for (let j = 0; j < 5; j++) {
+        for (let i = 0; i < 6; i++) {
+            if (places[i][j] === 'player' && places[i + 1][j] === 'player') {
+                counter++;
+            }
+            if (counter === 2) {
+                if (j === 0) {
+                    if (i <= 3) {
+                        if (places[i + 2][j] === "empty") {
+                            return i + 2;
+                        } else { counter = 1; }
+                    } else {
+                        if (places[i - 2][j] === 'empty') {
+                            return i - 2;
+                        } else { counter = 1; }
+                    }
+                } else {
+                    if (i <= 3) {
+                        if (places[i + 2][j] === "empty" && places[i + 2][j - 1] !== 'empty') {
+                            return i + 2;
+                        } else { counter = 1; }
+                    } else {
+                        if (places[i - 2][j] === 'empty' && places[i + 2][j - 1] !== 'empty') {
+                            return i - 2;
+                        } else { counter = 1; }
+                    }
+                }
+
+            }
+        }
+        counter = 1;
+    }
+
 
     return (randomize());
 }

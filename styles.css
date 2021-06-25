@@ -133,8 +133,8 @@ input:hover {
 }
 
 .game-board-buttonSpace {
-    height: 12vh;
-    width: 12vh;
+    height: 100%;
+    width: 100%;
     background-color: var(--color-secundario);
     -webkit-mask-image: radial-gradient(circle, transparent 49%, white 50%);
 }
