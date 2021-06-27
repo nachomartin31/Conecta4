@@ -11,6 +11,7 @@ let positions = [ //This array will contain the ordered positions of the board
 let round = 1; //Rounds counter
 let winner = '';
 let players = 0;
+let tie = false;
 //preGame section: 
 const multiPlayerButton = document.querySelector('#multiPlayer');
 multiPlayerButton.addEventListener('click', multiPlayer);
@@ -54,7 +55,7 @@ function addEvents(e) { //Add eventListeners to the board positions
         let targetArray = Array.from(target);
         let column = targetArray[targetArray.length - 1];
 
-        if (winner === '') {
+        if (winner === '' && !tie) {
             placeChip(column);
             if (players === 1) {
                 setTimeout(() => {
@@ -192,6 +193,22 @@ function checkResults(row, column) { //Check for a win situation
         }
         counter = 1;
     }
+    //In case of tied game
+    let places = positions.map(function(column) {
+        return column.map(function(row) {
+            if (row === 'p1' || row === 'p2') {
+                return 'occupied';
+            } else {
+                return 'empty';
+            }
+        })
+    });
+    places = places.flat();
+    const isOccupied = (currentPlace) => currentPlace === 'occupied';
+    if (places.every(isOccupied)) {
+        tie = true;
+        gameOver();
+    }
 }
 
 function launch() {
@@ -213,7 +230,7 @@ function singlePlayer() { //Starts the single player game
 }
 
 function machineRound() { //The machine makes its move
-    if (round % 2 === 0 && winner === '') {
+    if (round % 2 === 0 && winner === '' && !tie) {
         placeChip(selectColumn());
     }
 }
@@ -223,14 +240,14 @@ function selectColumn() { //Select the best movement possible
     const places = positions.map(function(column) {
         return column.map(function(row) {
             if (row === 'p1') {
-                return 'player'
+                return 'player';
             } else if (row === 'p2') {
-                return 'CPU'
+                return 'CPU';
             } else {
-                return 'empty'
+                return 'empty';
             }
         })
-    })
+    });
     let counter = 1;
     //Machine's overall game state:
     //Machine's vertical winning option:
@@ -242,14 +259,93 @@ function selectColumn() { //Select the best movement possible
                 counter = 1;
             }
             if (counter === 3) {
-                if (j + 2 < 6 && places[i][j + 2] === 'empty') {
-                    return i;
+                if (j < 4) {
+                    if (places[i][j + 2] === 'empty') {
+                        return i;
+                    }
                 }
             }
         }
         counter = 1;
     }
 
+    //Machine's horizontal winning option:
+    for (let j = 0; j <= 5; j++) {
+        for (let i = 0; i < 6; i++) {
+            if (places[i][j] === 'CPU' && places[i + 1][j] === 'CPU') {
+                counter++;
+            } else {
+                counter = 1;
+            }
+            if (counter === 3) {
+                if (j === 0) {
+                    if (i < 5) {
+                        if (places[i + 2][j] === 'empty') {
+                            return i + 2;
+                        }
+                    }
+                    if (i > 1) {
+                        if (places[i - 2][j] === 'empty') {
+                            return i - 2;
+                        }
+                    }
+                } else {
+                    if (i < 5) {
+                        if (places[i + 2][j] === 'empty' && places[i + 2][j - 1] !== 'empty') {
+                            return i + 2;
+                        }
+                    }
+                    if (i > 1) {
+                        if (places[i - 2][j] === 'empty' && places[i - 2][j - 1] !== 'empty') {
+                            return i - 2;
+                        }
+                    }
+                }
+            }
+        }
+        counter = 1;
+    }
+    //Machine's diagonal winning options
+    //Diagonal bottom-left to top-right (board's top half section)
+    for (let j = 0; j < 5; j++) {
+        for (let i = 0; i < 6; i++) {
+            if (places[i][i + j] === 'CPU' && places[i + 1][i + j + 1] === 'CPU') {
+                counter++;
+            } else {
+                counter = 1;
+            }
+            if (counter == 3) {
+                if (i + j + 2 < 6) {
+
+                    if (places[i + 2][j + 1] !== 'empty') {
+                        return i + 2;
+                    }
+                }
+            }
+        }
+        counter = 1;
+    }
+    //Diagonal bottom-left to top-right (board's bottom half section)
+    for (let j = 0; j < 5; j++) {
+        for (let i = 0; i + j < 6; i++) {
+            if (places[i + j][i] === 'CPU' && places[i + j + 1][i + 1] === 'CPU') {
+                counter++;
+            } else {
+                counter = 1;
+            }
+            if (counter == 3) {
+                if (i + j + 2 <= 6) {
+
+                    if (places[i + j + 2][i + 1] !== 'empty') {
+                        return i + j + 2;
+                    }
+                }
+            }
+        }
+        counter = 1;
+    }
+    //Player's overall game state:
+    //Vertical verifications:
     for (let i = 0; i <= 6; i++) {
         for (let j = 0; j < 5; j++) {
             if (places[i][j] === 'player' && places[i][j + 1] === 'player') {
@@ -267,10 +363,10 @@ function selectColumn() { //Select the best movement possible
         }
         counter = 1;
     }
-    //Machine's horizontal winning option:
+    //Horizontal verifications:
     for (let j = 0; j <= 5; j++) {
         for (let i = 0; i < 6; i++) {
-            if (places[i][j] === 'CPU' && places[i + 1][j] === 'CPU') {
+            if (places[i][j] === 'player' && places[i + 1][j] === 'player') {
                 counter++;
             } else {
                 counter = 1;
@@ -282,7 +378,7 @@ function selectColumn() { //Select the best movement possible
                             return i + 2;
                         }
                     }
-                    if (i > 2) {
+                    if (i > 1) {
                         if (places[i - 2][j] === 'empty') {
                             return i - 2;
                         }
@@ -293,7 +389,7 @@ function selectColumn() { //Select the best movement possible
                             return i + 2;
                         }
                     }
-                    if (i > 2) {
+                    if (i > 1) {
                         if (places[i - 2][j] === 'empty' && places[i - 2][j - 1] !== 'empty') {
                             return i - 2;
                         }
@@ -303,49 +399,46 @@ function selectColumn() { //Select the best movement possible
         }
         counter = 1;
     }
-
-    //Player's overall game state:
-    //Vertical verifications:
-
-    //Horizontal verifications:
+    // Player's horizontal winning option
+    //Diagonal bottom-left to top-right (board's top half section)
     for (let j = 0; j < 5; j++) {
         for (let i = 0; i < 6; i++) {
-            if (places[i][j] === 'player' && places[i + 1][j] === 'player') {
+            if (places[i][i + j] === 'player' && places[i + 1][i + j + 1] === 'player') {
                 counter++;
             } else {
-                counter = 1
+                counter = 1;
             }
-            if (counter === 3) {
-                if (i > 1 && i < 5) {
-                    if (j === 0) {
-                        if (places[i + 2][j] === "empty") {
-                            return i + 2;
-                        } else {
-                            counter = 1;
-                        }
-                        if (places[i - 2][j] === "empty") {
-                            return i - 2;
-                        } else {
-                            counter = 1;
-                        }
-                    } else {
-                        if (places[i + 2][j] === "empty" && places[i + 2][j - 1] !== "empty") {
-                            return i + 2;
-                        } else {
-                            counter = 1;
-                        }
-                        if (places[i - 2][j] === "empty" && places[i - 2][j - 1] !== "empty") {
-                            return i - 2;
-                        } else {
-                            counter = 1;
-                        }
-                    }
+            if (counter == 3) {
+                if (i + j + 2 < 6) {
 
+                    if (places[i + j + 2][j + 1] !== 'empty') {
+                        return i + j + 2;
+                    }
                 }
             }
         }
         counter = 1;
     }
+    //Diagonal bottom-left to top-right (board's bottom half section)
+    for (let j = 0; j < 5; j++) {
+        for (let i = 0; i + j < 6; i++) {
+            if (places[i + j][i] === 'player' && places[i + j + 1][i + 1] === 'player') {
+                counter++;
+            } else {
+                counter = 1;
+            }
+            if (counter == 3) {
+                if (i + j + 2 <= 6) {
+
+                    if (places[i + j + 2][i + 1] !== 'empty') {
+                        return i + j + 2;
+                    }
+                }
+            }
+        }
+        counter = 1;
+    }
+    //Player's horizontal two-end menace
     for (let j = 0; j < 5; j++) {
         for (let i = 0; i < 6; i++) {
             if (places[i][j] === 'player' && places[i + 1][j] === 'player') {
@@ -353,24 +446,23 @@ function selectColumn() { //Select the best movement possible
             }
             if (counter === 2) {
                 if (j === 0) {
-                    if (i <= 3) {
+                    if (i > 1 && i < 5) {
                         if (places[i + 2][j] === "empty") {
                             return i + 2;
                         } else { counter = 1; }
                     } else {
-                        if (places[i - 2][j] === 'empty') {
+                        if (places[i - 1][j] === 'empty') {
                             return i - 2;
                         } else { counter = 1; }
                     }
                 } else {
-                    if (i <= 3) {
+                    if (i > 1 && i < 5) {
                         if (places[i + 2][j] === "empty" && places[i + 2][j - 1] !== 'empty') {
                             return i + 2;
-                        } else { counter = 1; }
-                    } else {
-                        if (places[i - 2][j] === 'empty' && places[i + 2][j - 1] !== 'empty') {
+                        }
+                        if (places[i - 2][j] === 'empty' && places[i - 1][j - 1] !== 'empty') {
                             return i - 2;
-                        } else { counter = 1; }
+                        }
                     }
                 }
 
@@ -409,8 +501,11 @@ function gameOver() {
     }, 2500);
 
     const anouncement = document.querySelector('.winner');
-    anouncement.textContent = `¡${winner} ganan la partida!`;
-
+    if (tie) {
+        anouncement.textContent = '¡Empate!'
+    } else {
+        anouncement.textContent = `¡${winner} ganan la partida!`;
+    }
 }
 
 
@@ -426,6 +521,7 @@ function resetBoard() {
     ];
     round = 1;
     winner = '';
+    tie = false;
     const board = document.querySelector('.game-board');
     while (board.firstChild) {
         board.removeChild(board.firstChild);
