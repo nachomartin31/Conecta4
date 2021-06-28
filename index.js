@@ -12,6 +12,15 @@ let round = 1; //Rounds counter
 let winner = '';
 let players = 0;
 let tie = false;
+const title = document.querySelector('.game-title');
+title.addEventListener('click', main);
+
+function main() {
+    const game = document.querySelector('.game');
+    game.classList.remove('currentSection');
+    mainMenu();
+}
+
 //preGame section: 
 const multiPlayerButton = document.querySelector('#multiPlayer');
 multiPlayerButton.addEventListener('click', multiPlayer);
@@ -252,17 +261,17 @@ function selectColumn() { //Select the best movement possible
     //Machine's overall game state:
     //Machine's vertical winning option:
     for (let i = 0; i <= 6; i++) {
-        for (let j = 0; j < 5; j++) {
+        for (let j = 0; j < 4; j++) {
             if (places[i][j] === 'CPU' && places[i][j + 1] === 'CPU') {
                 counter++;
             } else {
                 counter = 1;
             }
             if (counter === 3) {
-                if (j < 4) {
+                if (j + 2 <= 5) {
                     if (places[i][j + 2] === 'empty') {
                         return i;
-                    }
+                    } else { counter = 1 }
                 }
             }
         }
@@ -315,9 +324,9 @@ function selectColumn() { //Select the best movement possible
                 counter = 1;
             }
             if (counter == 3) {
-                if (i + j + 2 < 6) {
+                if (i + j + 2 < 5) {
 
-                    if (places[i + 2][j + 1] !== 'empty') {
+                    if (places[i + 2][i + j + 2] === 'empty' && places[i + 2][i + j + 1] !== 'empty') {
                         return i + 2;
                     }
                 }
@@ -336,7 +345,7 @@ function selectColumn() { //Select the best movement possible
             if (counter == 3) {
                 if (i + j + 2 <= 6) {
 
-                    if (places[i + j + 2][i + 1] !== 'empty') {
+                    if (places[i + j + 2][i + 2] === 'empty' && places[i + j + 2][+1] !== 'empty') {
                         return i + j + 2;
                     }
                 }
@@ -344,26 +353,47 @@ function selectColumn() { //Select the best movement possible
         }
         counter = 1;
     }
-    //Player's overall game state:
-    //Vertical verifications:
-    for (let i = 0; i <= 6; i++) {
-        for (let j = 0; j < 5; j++) {
-            if (places[i][j] === 'player' && places[i][j + 1] === 'player') {
+    //Diagonal bottom-right to top-left (board's top half section)
+    for (let j = 0; j < 5; j++) {
+        for (let i = 0; i < 6; i++) {
+            if (places[6 - i][i + j] === 'CPU' && places[6 - i - 1][i + j + 1] === 'CPU') {
                 counter++;
             } else {
                 counter = 1;
             }
-            if (counter === 3) {
-                if (j < 4) {
-                    if (places[i][j + 2] === 'empty') {
-                        return i;
+            if (counter == 3) {
+                if (i + j + 2 <= 5) {
+
+                    if (places[6 - i - 2][i + j + 2] === 'empty' && places[6 - i - 2][i + j + 1] !== 'empty') {
+                        return 6 - i - 2;
                     }
                 }
             }
         }
         counter = 1;
     }
-    //Horizontal verifications:
+    //Diagonal bottom-right to top-left (board's bottom half section)
+
+    //Player's overall game state:
+    //Vertical verifications:
+    for (let i = 0; i <= 6; i++) {
+        for (let j = 0; j < 4; j++) {
+            if (places[i][j] === 'player' && places[i][j + 1] === 'player') {
+                counter++;
+            } else {
+                counter = 1;
+            }
+            if (counter === 3) {
+                if (j + 2 <= 5) {
+                    if (places[i][j + 2] === 'empty') {
+                        return i;
+                    } else { counter = 1 }
+                }
+            }
+        }
+        counter = 1;
+    }
+    // Player's horizontal winning option
     for (let j = 0; j <= 5; j++) {
         for (let i = 0; i < 6; i++) {
             if (places[i][j] === 'player' && places[i + 1][j] === 'player') {
@@ -399,7 +429,6 @@ function selectColumn() { //Select the best movement possible
         }
         counter = 1;
     }
-    // Player's horizontal winning option
     //Diagonal bottom-left to top-right (board's top half section)
     for (let j = 0; j < 5; j++) {
         for (let i = 0; i < 6; i++) {
@@ -411,8 +440,8 @@ function selectColumn() { //Select the best movement possible
             if (counter == 3) {
                 if (i + j + 2 < 6) {
 
-                    if (places[i + j + 2][j + 1] !== 'empty') {
-                        return i + j + 2;
+                    if (places[i + 2][i + j + 2] === 'empty' && places[i + 2][i + j + 1] !== 'empty') {
+                        return i + 2;
                     }
                 }
             }
@@ -430,7 +459,7 @@ function selectColumn() { //Select the best movement possible
             if (counter == 3) {
                 if (i + j + 2 <= 6) {
 
-                    if (places[i + j + 2][i + 1] !== 'empty') {
+                    if (places[i + j + 2][i + 2] === 'empty' && places[i + j + 2][+1] !== 'empty') {
                         return i + j + 2;
                     }
                 }
@@ -438,6 +467,28 @@ function selectColumn() { //Select the best movement possible
         }
         counter = 1;
     }
+    //Diagonal bottom-right to top-left (board's top half section)
+    for (let j = 0; j < 5; j++) {
+        for (let i = 0; i < 6; i++) {
+            if (places[6 - i][i + j] === 'player' && places[6 - i - 1][i + j + 1] === 'player') {
+                counter++;
+            } else {
+                counter = 1;
+            }
+            if (counter == 3) {
+                if (i + j + 2 <= 5) {
+
+                    if (places[6 - i - 2][i + j + 2] === 'empty' && places[6 - i - 2][i + j + 1] !== 'empty') {
+                        return 6 - i - 2;
+                    }
+                }
+            }
+        }
+        counter = 1;
+    }
+    //Diagonal bottom-right to top-left (board's bottom half section)
+
+
     //Player's horizontal two-end menace
     for (let j = 0; j < 5; j++) {
         for (let i = 0; i < 6; i++) {
@@ -449,19 +500,21 @@ function selectColumn() { //Select the best movement possible
                     if (i > 1 && i < 5) {
                         if (places[i + 2][j] === "empty") {
                             return i + 2;
-                        } else { counter = 1; }
-                    } else {
-                        if (places[i - 1][j] === 'empty') {
-                            return i - 2;
-                        } else { counter = 1; }
+                        } else if (places[i - 1][j] === 'empty') {
+                            return i - 1;
+                        } else {
+                            counter = 1;
+                        }
                     }
+
                 } else {
                     if (i > 1 && i < 5) {
                         if (places[i + 2][j] === "empty" && places[i + 2][j - 1] !== 'empty') {
                             return i + 2;
-                        }
-                        if (places[i - 2][j] === 'empty' && places[i - 1][j - 1] !== 'empty') {
-                            return i - 2;
+                        } else if (places[i - 1][j] === 'empty' && places[i - 1][j - 1] !== 'empty') {
+                            return i - 1;
+                        } else {
+                            counter = 1;
                         }
                     }
                 }
@@ -476,8 +529,19 @@ function selectColumn() { //Select the best movement possible
 }
 
 function randomize() {
-    let randomColumn = Math.round(Math.random() * 6)
-    if (positions[randomColumn][5] !== 'p1' && positions[randomColumn][5] !== 'p2') {
+    let randomColumn = Math.floor(Math.random() * 6)
+    const places = positions.map(function(column) {
+        return column.map(function(row) {
+            if (row === 'p1') {
+                return 'player';
+            } else if (row === 'p2') {
+                return 'CPU';
+            } else {
+                return 'empty';
+            }
+        })
+    });
+    if (places[randomColumn][5] === 'empty') {
         return randomColumn;
     } else {
         randomize();

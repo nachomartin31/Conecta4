@@ -78,6 +78,10 @@ input:hover {
 
 /*Game*/
 
+.game-title:hover {
+    cursor: pointer;
+}
+
 .game-title_span {
     font-size: 8rem;
 }
